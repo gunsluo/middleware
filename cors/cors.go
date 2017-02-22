@@ -307,7 +307,8 @@ func (c *Cors) handlePreflight(ctx *iris.Context) bool {
 
 // handleActualRequest handles simple cross-origin requests, actual request or redirects
 func (c *Cors) handleActualRequest(ctx *iris.Context) {
-	origin := ctx.RequestHeader("Origin")
+	reqOrigin := ctx.RequestHeader("Origin")
+	origin := reqOrigin
 
 	if ctx.MethodString() == iris.MethodOptions {
 		c.logf("  Actual request no headers added: method == %s", ctx.MethodString())
@@ -338,7 +339,7 @@ func (c *Cors) handleActualRequest(ctx *iris.Context) {
 	}
 
 	if c.allowedOriginsAll {
-		ctx.Response.Header.Set("Access-Control-Allow-Origin", ctx.RequestHeader("Origin"))
+		ctx.Response.Header.Set("Access-Control-Allow-Origin", reqOrigin)
 	} else {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", origin)
 	}
