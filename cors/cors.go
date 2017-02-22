@@ -336,7 +336,12 @@ func (c *Cors) handleActualRequest(ctx *iris.Context) {
 		c.logf("  Actual request no headers added: method '%s' not allowed", ctx.MethodString())
 		return
 	}
-	ctx.Response.Header.Set("Access-Control-Allow-Origin", origin)
+
+	if c.allowedOriginsAll {
+		ctx.Response.Header.Set("Access-Control-Allow-Origin", ctx.RequestHeader("Origin"))
+	} else {
+		ctx.Response.Header.Set("Access-Control-Allow-Origin", origin)
+	}
 	if len(c.exposedHeaders) > 0 {
 		ctx.Response.Header.Set("Access-Control-Expose-Headers", strings.Join(c.exposedHeaders, ", "))
 	}
