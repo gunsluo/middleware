@@ -249,7 +249,8 @@ func (c *Cors) Serve(ctx *iris.Context) {
 
 // handlePreflight handles pre-flight CORS requests
 func (c *Cors) handlePreflight(ctx *iris.Context) bool {
-	origin := ctx.RequestHeader("Origin")
+	reqOrigin := ctx.RequestHeader("Origin")
+	origin := reqOrigin
 
 	if ctx.MethodString() != iris.MethodOptions {
 		c.logf("  Preflight aborted: %s!=OPTIONS", ctx.MethodString())
@@ -284,7 +285,13 @@ func (c *Cors) handlePreflight(ctx *iris.Context) bool {
 		c.logf("  Preflight aborted: headers '%v' not allowed", reqHeaders)
 		return false
 	}
-	ctx.Response.Header.Set("Access-Control-Allow-Origin", origin)
+
+	if c.allowedOriginsAll {
+		ctx.Response.Header.Set("Access-Control-Allow-Origin", reqOrigin)
+	} else {
+		ctx.Response.Header.Set("Access-Control-Allow-Origin", origin)
+	}
+
 	// Spec says: Since the list of methods can be unbounded, simply returning the method indicated
 	// by Access-Control-Request-Method (if supported) can be enough
 	ctx.Response.Header.Set("Access-Control-Allow-Methods", strings.ToUpper(reqMethod))
